@@ -1,3 +1,4 @@
+import { OnModuleInit } from '@nestjs/common';
 import {
   WebSocketGateway,
   MessageBody,
@@ -9,11 +10,19 @@ import { Server } from 'socket.io';
 import { TaskService } from './tasks.service';
 
 @WebSocketGateway()
-export class TaskGateway {
+export class TaskGateway implements OnModuleInit {
   constructor(private readonly taskService: TaskService) {}
 
   @WebSocketServer()
   server: Server;
+
+  onModuleInit() {
+    this.server.on('connection', async (socket) => {
+      console.log('New connection. id:', socket.id);
+      const allTasks = await this.taskService.getAllTasks();
+      this.server.emit('new-connection', allTasks);
+    });
+  }
 
   @SubscribeMessage('create-task')
   async handleNewTask(@MessageBody() task: string): Promise<Task | Error> {
