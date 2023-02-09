@@ -61,7 +61,7 @@ export class TaskGateway implements OnModuleInit {
     try {
       await this.taskService.deleteTask(taskId);
       console.log('Task:', taskId, 'has been deleted.');
-      this.server.emit('update-task', taskId);
+      this.server.emit('delete-task', taskId);
       return taskId;
     } catch (error) {
       console.log('Error in handleDeleteTask', error);
