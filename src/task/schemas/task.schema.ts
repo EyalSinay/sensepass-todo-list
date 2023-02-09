@@ -10,6 +10,9 @@ export class Task {
 
   @Prop()
   done: boolean;
+
+  @Prop()
+  isOnEdit: boolean;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

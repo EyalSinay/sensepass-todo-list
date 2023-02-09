@@ -9,7 +9,6 @@ import { TaskService } from './tasks.service';
   imports: [
     MongooseModule.forFeature([{ name: Task.name, schema: TaskSchema }]),
   ],
-  controllers: [],
   providers: [TaskService, TasksRepository, TaskGateway],
 })
 export class TasksModule {}

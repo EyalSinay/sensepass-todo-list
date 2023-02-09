@@ -5,15 +5,58 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Task } from './schemas/task.schema';
+import { Server } from 'socket.io';
+import { TaskService } from './tasks.service';
 
 @WebSocketGateway()
 export class TaskGateway {
-  @WebSocketServer()
-  server;
+  constructor(private readonly taskService: TaskService) {}
 
-  @SubscribeMessage('new-task')
-  handleMessage(@MessageBody() task: string): void {
-    const newTask: Task = { task, done: false };
-    this.server.emit('new-task', newTask);
+  @WebSocketServer()
+  server: Server;
+
+  @SubscribeMessage('create-task')
+  async handleNewTask(@MessageBody() task: string): Promise<Task | Error> {
+    const newTask: Task = { task, done: false, isOnEdit: false };
+    try {
+      await this.taskService.createTask(newTask);
+      console.log('A new task is created.', newTask);
+      this.server.emit('create-task', newTask);
+      return newTask;
+    } catch (error) {
+      console.log('Error in handleNewMessage', error);
+      return error;
+    }
+  }
+
+  @SubscribeMessage('update-task')
+  async handleUpdateTask(
+    @MessageBody() taskId: string,
+    task: Task,
+  ): Promise<Task | Error> {
+    try {
+      await this.taskService.updateTask(taskId, task);
+      console.log('Task:', taskId, 'has been updated to:', task);
+      this.server.emit('update-task', { taskId, task });
+      return task;
+    } catch (error) {
+      console.log('Error in handleUpdateTask', error);
+      return error;
+    }
+  }
+
+  @SubscribeMessage('delete-task')
+  async handleDeleteTask(
+    @MessageBody() taskId: string,
+  ): Promise<string | Error> {
+    try {
+      await this.taskService.deleteTask(taskId);
+      console.log('Task:', taskId, 'has been deleted.');
+      this.server.emit('update-task', taskId);
+      return taskId;
+    } catch (error) {
+      console.log('Error in handleDeleteTask', error);
+      return error;
+    }
   }
 }
