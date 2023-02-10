@@ -9,7 +9,7 @@ import { Task } from './schemas/task.schema';
 import { Server } from 'socket.io';
 import { TaskService } from './tasks.service';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class TaskGateway implements OnModuleInit {
   constructor(private readonly taskService: TaskService) {}
 
