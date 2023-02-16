@@ -13,6 +13,8 @@ export class Task {
 
   @Prop()
   isOnEdit: boolean;
+
+  _id?: any;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);

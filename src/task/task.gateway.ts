@@ -27,11 +27,20 @@ export class TaskGateway implements OnModuleInit {
 
   @SubscribeMessage('create-task')
   async handleNewTask(@MessageBody() text: string): Promise<Task | Error> {
-    const newTask: Task = { text, done: false, isOnEdit: false };
     try {
-      await this.taskService.createTask(newTask);
-      console.log('A new task is created.', newTask);
-      this.server.emit('create-task', newTask);
+      const newTask = await this.taskService.createTask({
+        text,
+        done: false,
+        isOnEdit: false,
+      });
+      console.log('A new task is created.', newTask._id.toString());
+      const newTaskDto: TaskDto = {
+        _id: newTask._id,
+        text: newTask.text,
+        done: newTask.done,
+        isOnEdit: newTask.isOnEdit,
+      };
+      this.server.emit('create-task', newTaskDto);
       return newTask;
     } catch (error) {
       console.log('Error in handleNewMessage', error);
