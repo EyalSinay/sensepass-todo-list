@@ -6,7 +6,7 @@ export type TaskDocument = Task & Document;
 @Schema()
 export class Task {
   @Prop()
-  task: string;
+  text: string;
 
   @Prop()
   done: boolean;

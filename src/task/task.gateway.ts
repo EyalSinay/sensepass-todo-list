@@ -25,8 +25,8 @@ export class TaskGateway implements OnModuleInit {
   }
 
   @SubscribeMessage('create-task')
-  async handleNewTask(@MessageBody() task: string): Promise<Task | Error> {
-    const newTask: Task = { task, done: false, isOnEdit: false };
+  async handleNewTask(@MessageBody() text: string): Promise<Task | Error> {
+    const newTask: Task = { text, done: false, isOnEdit: false };
     try {
       await this.taskService.createTask(newTask);
       console.log('A new task is created.', newTask);
