@@ -8,6 +8,7 @@ import {
 import { Task } from './schemas/task.schema';
 import { Server } from 'socket.io';
 import { TaskService } from './tasks.service';
+import { TaskDto } from './task.dto';
 
 @WebSocketGateway({ cors: true })
 export class TaskGateway implements OnModuleInit {
@@ -40,13 +41,19 @@ export class TaskGateway implements OnModuleInit {
 
   @SubscribeMessage('update-task')
   async handleUpdateTask(
-    @MessageBody() taskId: string,
-    task: Task,
+    @MessageBody()
+    task: TaskDto,
   ): Promise<Task | Error> {
+    const taskId = task._id;
+    const taskUpdates: Task = {
+      text: task.text,
+      done: task.done,
+      isOnEdit: task.isOnEdit,
+    };
     try {
-      await this.taskService.updateTask(taskId, task);
-      console.log('Task:', taskId, 'has been updated to:', task);
-      this.server.emit('update-task', { taskId, task });
+      await this.taskService.updateTask(taskId, taskUpdates);
+      console.log('Task:', taskId, 'has been updated to:', taskUpdates);
+      this.server.emit('update-task', task);
       return task;
     } catch (error) {
       console.log('Error in handleUpdateTask', error);
